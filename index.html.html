@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<!-- saved from url=(0032)http://127.0.0.1:5500/index.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            transition: background-color 0.3s;
+        }
+        .chat-container {
+            width: 400px;
+            max-width: 90%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+        }
+        .chat-header {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-body {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        .bot-message {
+            background: #e9ecef;
+            color: #333;
+            margin-right: auto;
+        }
+        .chat-footer {
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+        }
+        #userInput {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        #userInput:focus {
+            border-color: #007bff;
+        }
+        #sendBtn {
+            padding: 8px 15px;
+            margin-left: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        #sendBtn:hover {
+            background: #0056b3;
+        }
+        #modeToggle {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: underline;
+        }
+        #modeToggle:hover {
+            color: #cce5ff;
+        }
+        .advanced-options {
+            display: none;
+            padding: 10px;
+            background: #f8f9fa;
+            border-top: 1px solid #ddd;
+        }
+        .advanced-options.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <span>AI Chatbot</span>
+            <button id="modeToggle" fdprocessedid="854tpg">Switch to Advanced</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="message bot-message">Hi! I'm your AI buddy. Talk to me or teach me something by saying 'teach me that [info]'!</div>
+        <div class="message user-message">hello</div><div class="message bot-message">Hmm, let me think... Hi there! How can I help you today?</div><div class="message bot-message">Mode switched to Advanced.</div><div class="message bot-message">Mode switched to Simple.</div><div class="message bot-message">Mode switched to Advanced.</div><div class="message user-message">is sky blue</div><div class="message bot-message">Hmm, let me think... I'm in advanced mode—ask me something complex!</div><div class="message bot-message">Mode switched to Simple.</div><div class="message user-message">is sky blue</div><div class="message bot-message">Hmm, let me think... I'm learning! What else can I do for you?</div><div class="message user-message">is sky red</div><div class="message bot-message">Hmm, let me think... I'm learning! What else can I do for you?</div></div>
+        <div class="advanced-options" id="advancedOptions">
+            <p>Advanced Mode: Teach me more complex things or ask detailed questions.</p>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="userInput" placeholder="Type your message..." fdprocessedid="8fcqg">
+            <button id="sendBtn" fdprocessedid="dgizwo">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Simulated memory for the AI
+        let memory = {
+            knowledge: {},
+            conversations: []
+        };
+        let isAdvancedMode = false;
+
+        // DOM elements
+        const chatBody = document.getElementById('chatBody');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const modeToggle = document.getElementById('modeToggle');
+        const advancedOptions = document.getElementById('advancedOptions');
+
+        // Add message to chat
+        function addMessage(text, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+            messageDiv.textContent = text;
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // Simulate AI response (replace with backend call if needed)
+        function generateResponse(userText) {
+            let response = "Hmm, let me think... ";
+            
+            // Check for teaching command
+            if (userText.toLowerCase().includes("teach me that")) {
+                const parts = userText.split("that");
+                if (parts.length > 1) {
+                    const key = parts[0].replace(/teach me/i, "").trim().toLowerCase();
+                    const value = parts[1].trim();
+                    memory.knowledge[key] = value;
+                    return `Got it! I learned that '${key}' is '${value}'.`;
+                }
+            }
+
+            // Use memory if applicable
+            for (let key in memory.knowledge) {
+                if (userText.toLowerCase().includes(key)) {
+                    response += `I remember you told me: ${memory.knowledge[key]}. `;
+                }
+            }
+
+            // Simple response logic (expandable)
+            if (userText.toLowerCase().includes("hi") || userText.toLowerCase().includes("hello")) {
+                response += "Hi there! How can I help you today?";
+            } else if (userText.toLowerCase().includes("bye")) {
+                response += "Goodbye! See you next time!";
+            } else {
+                response += isAdvancedMode ? 
+                    "I'm in advanced mode—ask me something complex!" : 
+                    "I'm learning! What else can I do for you?";
+            }
+
+            memory.conversations.push({ user: userText, bot: response });
+            return response;
+        }
+
+        // Handle sending message
+        function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            addMessage(text, true);
+            const response = generateResponse(text);
+            setTimeout(() => addMessage(response), 500); // Simulate delay
+            userInput.value = '';
+        }
+
+        // Event listeners
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        modeToggle.addEventListener('click', () => {
+            isAdvancedMode = !isAdvancedMode;
+            modeToggle.textContent = `Switch to ${isAdvancedMode ? 'Simple' : 'Advanced'}`;
+            advancedOptions.classList.toggle('active');
+            addMessage(`Mode switched to ${isAdvancedMode ? 'Advanced' : 'Simple'}.`, false);
+        });
+    </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+
+<span id="PING_IFRAME_FORM_DETECTION" style="display: none;"></span></body></html>
